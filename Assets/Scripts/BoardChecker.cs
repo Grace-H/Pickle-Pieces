@@ -8,44 +8,17 @@ using UnityEngine;
 
 public class BoardChecker : MonoBehaviour {
 
-	public char[,] board;
-	private const int boardWidth = 20;
-	private const int boardHeight = 20;
 	private List<string> validWords;
 	
 	// Use this for initialization
 	void Start () {
-		board = new char[boardWidth, boardHeight]{
-			{' ', ' ', ' ', ' ', 'A', 'P', 'P', 'L', 'E', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', 'U', ' ', ' ', 'L', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', 'R', ' ', ' ', 'E', ' ', ' ', ' ', ' ', ' ', 'P', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', 'P', ' ', ' ', 'P', 'K', 'R', 'S', ' ', ' ', 'I', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', 'L', ' ', ' ', 'H', ' ', ' ', ' ', ' ', ' ', 'N', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', 'G', 'R', 'E', 'E', 'N', ' ', 'A', ' ', ' ', ' ', ' ', ' ', 'E', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', 'F', ' ', ' ', ' ', ' ', ' ', 'N', ' ', ' ', ' ', ' ', ' ', 'A', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', 'K', ' ', ' ', ' ', ' ', ' ', 'T', 'R', 'E', 'E', ' ', ' ', 'P', ' ', ' ', ' ', ' ', ' ',},
-			{'Y', 'E', 'L', 'L', ' ', ' ', ' ', ' ', ' ', 'O', ' ', 'A', ' ', ' ', 'P', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'A', ' ', 'R', 'E', 'A', 'L', 'L', 'Y', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'S', ' ', ' ', ' ', ' ', 'E', ' ', 'E', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'T', ' ', ' ', ' ', ' ', ' ', ' ', 'A', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'H', 'E', 'L', 'P',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',},
-			{' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',}
-		};
-		Print();
 		ReadWords();
-		CheckBoard();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
 	}
+	
 	void ReadWords(){
 		validWords = new List<string>();
 		System.IO.StreamReader fileReader = new System.IO.StreamReader("Assets\\wordlist.txt");
@@ -56,7 +29,9 @@ public class BoardChecker : MonoBehaviour {
 		}
 		fileReader.Close();
 	}
-	void Print(){
+	
+	/*prints out 2D board of chars, needs board height and width*/
+	void Print(char[,] board, int boardHeight, int boardWidth){
 		string output = "BOARD: \n";
 		Debug.Log("BoardChecker.cs: board length = " + board.Length);
 		for(int i = 0; i < boardWidth; i ++){
@@ -76,14 +51,14 @@ public class BoardChecker : MonoBehaviour {
 	
 	/*check the board for invalid words, diconnected letters, isolated words
 	returns: 0 - good; 1 - disconnected word; 2 - invalid word*/
-	int CheckBoard(){
+	public int CheckBoard(char[,] board, int boardHeight, int boardWidth){
 		//i is column, j is row
 		for(int i = 0; i < boardWidth; i++){
 			for(int j = 0; j < boardHeight; j++){
 				
 				//check if it is a letter
 				if(board[j,i] != ' '){
-					bool connected = CheckStrayWord(j, i);
+					bool connected = CheckStrayWord(board, 16, 25, j, i);
 					if(connected){
 						Debug.Log(j + ", " + i + " is connected to a word");
 				
@@ -92,7 +67,7 @@ public class BoardChecker : MonoBehaviour {
 						//if it and square next to it are occupied, it is the start of a word going across
 						if(i == 0){
 							if(board[j, i + 1] != ' '){
-								string word = LoadWordAcross(j, i);
+								string word = LoadWordAcross(board, 16, 25, j, i);
 								Debug.Log(word);	
 								if(!CheckWord(word)){
 									Debug.Log("Not a word!");
@@ -104,7 +79,7 @@ public class BoardChecker : MonoBehaviour {
 						//if it and square next to it are occupied but not square before, it is the start of a word going across
 						else if(i != boardWidth - 1){
 							if(board[j, i + 1] != ' ' && board[j, i - 1] == ' '){
-								string word = LoadWordAcross(j, i);
+								string word = LoadWordAcross(board, 16, 25, j, i);
 								Debug.Log(word);					
 								if(!CheckWord(word)){
 									Debug.Log("Not a word!");
@@ -118,7 +93,7 @@ public class BoardChecker : MonoBehaviour {
 						//if it and square below it are occupied, it is the start of a word going down
 						if(j == 0){
 							if(board[j + 1, i] != ' '){
-								string word = LoadWordDown(j, i);
+								string word = LoadWordDown(board, 16, 25, j, i);
 								Debug.Log(word);
 								if(!CheckWord(word)){
 									Debug.Log("Not a word!");
@@ -130,7 +105,7 @@ public class BoardChecker : MonoBehaviour {
 						//if it and square next to it are occupied but not square before, it is the start of a word going across
 						else if(j != boardHeight - 1){
 							if(board[j + 1, i] != ' ' && board[j - 1, i] == ' '){
-								string word = LoadWordDown(j, i);
+								string word = LoadWordDown(board, 16, 25, j, i);
 								Debug.Log(word);
 								if(!CheckWord(word)){
 									Debug.Log("Not a word!");
@@ -152,7 +127,7 @@ public class BoardChecker : MonoBehaviour {
 	
 	/* starts at the index given and reads across, adding all letters of word to string
 	returns string*/
-	string LoadWordAcross(int row, int column){
+	string LoadWordAcross(char[,] board, int boardHeight, int boardWidth, int row, int column){
 		string word = "";
 		//keep reading acorss until edge is reached or word is over
 		bool endReached = false;
@@ -173,7 +148,7 @@ public class BoardChecker : MonoBehaviour {
 	
 	/*starts at the index given and reads down, adding all letters of word to string
 	returns string with word*/
-	string LoadWordDown(int row, int column){
+	string LoadWordDown(char[,] board, int boardHeight, int boardWidth, int row, int column){
 		string word = "";
 		//keep reading down until bottom is reached or word is over
 		bool endReached = false;
@@ -194,10 +169,10 @@ public class BoardChecker : MonoBehaviour {
 	
 	/*checks if the letter (and possibly word) is connected to something else
 	returns true if it is*/
-	bool CheckStrayWord(int row, int column){
+	bool CheckStrayWord(char[,] board, int boardHeight, int boardWidth, int row, int column){
 		bool connected = false;
 		//check letter itself, only procede if still false
-		connected = CheckCornerLetter(row, column);
+		connected = CheckCornerLetter(board, 16, 25, row, column);
 		
 		if(!connected){
 			//backwards across: must be connected to something above or below
@@ -211,7 +186,7 @@ public class BoardChecker : MonoBehaviour {
 					break;
 				}
 				if(board[row, column - shift] != ' '){
-					if(CheckCornerLetter(row, column - shift)){
+					if(CheckCornerLetter(board, 16, 25, row, column - shift)){
 						connected = true;
 					}
 				}
@@ -231,7 +206,7 @@ public class BoardChecker : MonoBehaviour {
 					break;
 				}
 				if(board[row, column + shift] != ' '){
-					if(CheckCornerLetter(row, column + shift)){
+					if(CheckCornerLetter(board, 16, 25, row, column + shift)){
 						connected = true;
 					}
 				}
@@ -251,7 +226,7 @@ public class BoardChecker : MonoBehaviour {
 					break;
 				}
 				if(board[row - shift, column] != ' '){
-					if(CheckCornerLetter(row - shift, column)){
+					if(CheckCornerLetter(board, 16, 25, row - shift, column)){
 						connected = true;
 					}
 				}
@@ -271,7 +246,7 @@ public class BoardChecker : MonoBehaviour {
 					break;
 				}
 				if(board[row + shift, column] != ' '){
-					if(CheckCornerLetter(row + shift, column)){
+					if(CheckCornerLetter(board, 16, 25, row + shift, column)){
 						connected = true;
 					}
 				}
@@ -284,7 +259,7 @@ public class BoardChecker : MonoBehaviour {
 	}		
 	
 	/*returns true if the letter has a neighbor both vertically and horizontally*/
-	bool CheckCornerLetter(int row, int column){
+	bool CheckCornerLetter(char[,] board, int boardHeight, int boardWidth, int row, int column){
 		bool connectedVer = false;
 		bool connectedHor = false;
 		//check left

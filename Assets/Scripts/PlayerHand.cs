@@ -5,9 +5,8 @@ using UnityEngine;
 public class PlayerHand : MonoBehaviour {
 
 	private GameObject[] hand;
-	// Use this for initialization
-	
 	private GameObject[,] cells;
+	private BoardChecker boardChecker;
 	
 	private int[,] xyz = new int[36, 3]{
 		{-68, 40, 0},
@@ -54,13 +53,16 @@ public class PlayerHand : MonoBehaviour {
 		for(int i = 0; i < hand.Length; i++){
 			hand[i] = TileDistributor.Instance.DealTile();
 		}
+
+		boardChecker = gameObject.GetComponent(typeof(BoardChecker)) as BoardChecker;
 		
-		Debug.Log(hand.Length);
-		PrintHand();
 		PlaceHand();
 		GetCells();
 	}
 	
+	/*Loads parent cells into array "cells"
+	called from start()
+	*/
 	void GetCells(){
 		cells = new GameObject[16,25];
 		GameObject[] rows = GameObject.FindGameObjectsWithTag("Row");
@@ -75,19 +77,9 @@ public class PlayerHand : MonoBehaviour {
 			children = SortArray(children);
 			Print1DArray(children);
 			for(int j = 0; j < children.Length; j++){
-				cells[i,j] = children[j];
+				cells[15 - i,j] = children[j];
 			}
 		}
-		GameObject[] unsortedcells = GameObject.FindGameObjectsWithTag("Cell");
-		//cells are not sorted by length
-		
-		for(int i = 0; i < unsortedcells.Length; i ++){
-			int row = 15 - i / 25;
-			int column = i % 25;
-			//Debug.Log("row: " + row + " column: " + column);
-			cells[row, column] = unsortedcells[i];
-		}
-		PrintCells();
 	}
 	
 	/*uses QuickSort to sort array of game objects by their order in the heirarchy
@@ -150,6 +142,7 @@ public class PlayerHand : MonoBehaviour {
 		Debug.Log(output);
 	}
 	
+	/*Prints letters in player's hand to console*/
 	void PrintHand(){
 		string output = "PlayerHand: ";
 		for(int i = 0; i < hand.Length; i++){
@@ -173,7 +166,7 @@ public class PlayerHand : MonoBehaviour {
 		}
 	}
 	
-		
+	//not sure what this does
 	public void LoadTileValues(){
 		for(int i = 0; i < hand.Length; i++){
 			Vector3 position = hand[i].transform.position;
@@ -181,17 +174,23 @@ public class PlayerHand : MonoBehaviour {
 		}
 	}
 	
+	/*Checks board that player is using*/
 	public void CheckBoard(){
-		Debug.Log("checking board");
 		char[,] boardLetters = new char[16,25];
+		int totalLetters = 0;
+		
+		//ask each cell if it has a child, if so get the letter
 		for(int i = 0; i < 16; i++){
 			for(int j = 0; j < 25; j++){
 				//Debug.Log("Index: " + cells[i,j].transform.GetSiblingIndex());
+				//if the cell has a child
 				if(cells[i,j].transform.childCount > 0){
 					GameObject child = cells[i,j].transform.GetChild(0).gameObject;
+					//get letter
 					LetterValue letterObj = child.GetComponent(typeof(LetterValue)) as LetterValue;
 					if(letterObj != null){
 						boardLetters[i,j] = letterObj.GetLetter();
+						totalLetters++;
 					}
 					else{
 						boardLetters[i,j] = ' ';
@@ -202,9 +201,20 @@ public class PlayerHand : MonoBehaviour {
 				}
 			}
 		}
+		
+		//if not all letters were played
+		if(totalLetters < hand.Length){
+			Debug.Log("Not all tiles were played.");
+		}
+		else{
+			//check board
+			int error = boardChecker.CheckBoard(boardLetters, 16, 25);
+			Debug.Log("BoardChecker returned: " + error);
+		}
 		Print2DArray(boardLetters);
 	}
 	
+	/*prints out 2D board to console*/
 	void Print2DArray(char[,] board){
 		string output = "BOARD: \n";
 		Debug.Log("PlayerHand.cs: board length = " + board.Length);
