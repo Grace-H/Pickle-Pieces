@@ -1,0 +1,6 @@
+Board Checking from PlayerHand.cs
+1. create 2d array of all cells
+2. ask each cell if it has a child
+	a. if yes, get child and put value in array of char
+	b. if no, put ' ' in char array
+3. call board checker function of parent using char array

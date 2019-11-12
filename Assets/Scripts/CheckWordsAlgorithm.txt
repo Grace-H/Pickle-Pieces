@@ -1,0 +1,28 @@
+Check Words Algorithm
+1. Itterate over array
+	a. is it start of word going accross
+		- bool connected
+		- is it the first letter in the row
+		- is there a blank behind it
+		i. read each letter into string until blank or end of row
+			- is at least one connected to something above or below
+		ii. one connected letter: ignore
+		iii. one unconnected letter: problem
+		iv. unconnected: problem
+		v. connected word: CheckWord
+	b. is it start of word going down
+		- bool connected
+		- is it the first letter in the column
+		- is there a blank behind it
+		i. read each letter into string until blank or end of column
+			- is at least one connected to something on either side
+		ii. one connected letter: ignore
+		iii. one unconnected letter: problem
+		iv. unconnected: problem
+		v. connected word: CheckWord		
+bool CheckWord:
+	itterate over array
+	compare word to array until found
+	if not found return false	
+	
+- Doesn't check for if there are two crosswords

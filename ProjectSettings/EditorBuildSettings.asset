@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Main menu.unity
+    guid: 99c93902273eede47800bd261f3dc9cf
+  - enabled: 1
+    path: Assets/Scenes/Connect To Player.unity
+    guid: 6a7aa98d973fabc4195726c3acd3c1db
+  - enabled: 1
+    path: Assets/Scenes/Settings.unity
+    guid: 7c7973c0ff6e3a446baf6aa71171e540
+  - enabled: 1
+    path: Assets/Scenes/Info.unity
+    guid: ba54cf6ef7a621f4fa5a41e9582161aa
+  - enabled: 1
+    path: Assets/Scenes/The Game.unity
+    guid: 0934bba89d8d21b4fb59a1e6d6875918
+  - enabled: 1
+    path: Assets/Scenes/AudioVideo.unity
+    guid: d38ee5565dbf9264d91c414e2c2730e7
+  m_configObjects: {}
