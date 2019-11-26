@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class TileDistributor : MonoBehaviour {
 	
-	//use to access from PlayerHand
-	public static TileDistributor Instance;
-	
 	public GameObject tilePrefab;
 	GameObject[] tiles;
 	
@@ -14,10 +11,20 @@ public class TileDistributor : MonoBehaviour {
 	private SpriteRenderer spriteR;
 	private Sprite[] sprites;
 	
+	private static TileDistributor tileDistributor;
+	
+	public static TileDistributor Instance(){
+		if(!tileDistributor){
+			tileDistributor = FindObjectOfType(typeof(TileDistributor)) as TileDistributor;
+			if(!tileDistributor){
+				Debug.LogError("There needs to be one active TileDistributor script on a GameObject in your scene.");
+			}
+		}
+		return tileDistributor;
+	}
+	
 	// Use this for initialization
 	void Awake () {
-		
-		Instance = this;
 		
 		Debug.Log("running");
 		for(int i = 0; i < 144; i++){

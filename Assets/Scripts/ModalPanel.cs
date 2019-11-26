@@ -19,18 +19,30 @@ public class ModalPanel : MonoBehaviour {
 		if(!modalPanel){
 			modalPanel = FindObjectOfType(typeof(ModalPanel)) as ModalPanel;
 			if(!modalPanel){
-				Debug.LogError("There neds to be one active ModalPanel script on a GameObject in your scene.");
+				Debug.LogError("There needs to be one active ModalPanel script on a GameObject in your scene.");
 			}
 		}
 		return modalPanel;
 	}
 	
-	// Yes/No/Cancel: A string, A yes event, a no event, and an okay event
+	public void Awake(){
+		iconImage.gameObject.SetActive(false);
+		yesButton.gameObject.SetActive(false);
+		noButton.gameObject.SetActive(false);
+		okayButton.gameObject.SetActive(false);
+		modalPanelObject.SetActive(false);
+	}
+	
+	// Yes/No/Okay: A string, A yes event, a no event, and an okay event
 	public void Choice(string question, UnityAction yesEvent, UnityAction noEvent, UnityAction okayEvent){
+		if(yesEvent == null){
+			Debug.LogError("There must be a yes event");
+		}
+
 		//open panel
 		modalPanelObject.SetActive(true);
 		
-		//asign listeners
+		//assign listeners
 		yesButton.onClick.RemoveAllListeners();
 		yesButton.onClick.AddListener(yesEvent);
 		yesButton.onClick.AddListener(ClosePanel);
@@ -49,9 +61,64 @@ public class ModalPanel : MonoBehaviour {
 		yesButton.gameObject.SetActive(true);
 		noButton.gameObject.SetActive(true);
 		okayButton.gameObject.SetActive(true);
+		
+		Debug.Log("YNO PANEL OPENNED");
+	}
+	
+	// Yes/No: A string, A yes event, a no event
+	public void Choice(string question, UnityAction yesEvent, UnityAction noEvent){
+		//open panel
+		modalPanelObject.SetActive(true);
+		
+		//asign listeners
+		yesButton.onClick.RemoveAllListeners();
+		yesButton.onClick.AddListener(yesEvent);
+		yesButton.onClick.AddListener(ClosePanel);
+		
+		noButton.onClick.RemoveAllListeners();
+		noButton.onClick.AddListener(noEvent);
+		noButton.onClick.AddListener(ClosePanel);
+		
+		okayButton.onClick.RemoveAllListeners();
+		
+		this.question.text = question;
+		
+		this.iconImage.gameObject.SetActive(false);
+		yesButton.gameObject.SetActive(true);
+		noButton.gameObject.SetActive(true);
+		okayButton.gameObject.SetActive(false);
+		
+		
+		Debug.Log("YN PANEL OPENNED");
+	}
+	
+	// Okay: A string and an okay event
+	public void Choice(string question, UnityAction okayEvent){
+		//open panel
+		modalPanelObject.SetActive(true);
+		
+		//asign listeners
+		yesButton.onClick.RemoveAllListeners();
+		
+		noButton.onClick.RemoveAllListeners();
+		
+		okayButton.onClick.RemoveAllListeners();
+		okayButton.onClick.AddListener(okayEvent);
+		okayButton.onClick.AddListener(ClosePanel);
+		
+		this.question.text = question;
+		
+		this.iconImage.gameObject.SetActive(false);
+		yesButton.gameObject.SetActive(false);
+		noButton.gameObject.SetActive(false);
+		okayButton.gameObject.SetActive(true);
+	
+	
+		Debug.Log("O PANEL OPENNED");
 	}
 	
 	void ClosePanel(){
+		Debug.Log("Close action fired");
 		modalPanelObject.SetActive(false);
 	}
 }

@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class PlayerHand : MonoBehaviour {
 
 	private GameObject[] hand;
 	private GameObject[,] cells;
 	private BoardChecker boardChecker;
+	private TileDistributor tileDistributor;
 	
 	private int[,] xyz = new int[36, 3]{
 		{-68, 40, 0},
@@ -47,21 +50,30 @@ public class PlayerHand : MonoBehaviour {
 		{-52, -33, 0},
 	};
 	
+	//modal window
+	private ModalPanel modalPanel;
+	private UnityAction okayErrorAction;
+	private UnityAction dealOneTileAction;
+	
 	void Start () {
 		hand = new GameObject[21];
+		tileDistributor = TileDistributor.Instance();
+		
+		modalPanel = ModalPanel.Instance();
+		okayErrorAction = new UnityAction(ModalPanelErrorOkayAction);
+		dealOneTileAction = new UnityAction(TakeOneTile);
 		
 		for(int i = 0; i < hand.Length; i++){
-			hand[i] = TileDistributor.Instance.DealTile();
+			hand[i] = tileDistributor.DealTile();
 		}
 
 		boardChecker = gameObject.GetComponent(typeof(BoardChecker)) as BoardChecker;
-		
 		PlaceHand();
 		GetCells();
 	}
 	
 	/*Loads parent cells into array "cells"
-	called from start()
+	called from Start()
 	*/
 	void GetCells(){
 		cells = new GameObject[16,25];
@@ -160,6 +172,7 @@ public class PlayerHand : MonoBehaviour {
 	/*places tiles in locations set in coordinates array*/
 	void PlaceHand(){
 		for(int i = 0; i < hand.Length; i++){
+			//hand[i].Scale()
 			hand[i].transform.position = new Vector3(xyz[i,0], xyz[i,1], xyz[i,2]);
 			Tile tile = hand[i].GetComponent(typeof(Tile)) as Tile;
 			tile.SetStartPosition(new Vector2(xyz[i,0], xyz[i,1]));
@@ -205,13 +218,31 @@ public class PlayerHand : MonoBehaviour {
 		//if not all letters were played
 		if(totalLetters < hand.Length){
 			Debug.Log("Not all tiles were played.");
+			modalPanel.Choice("You must play all tiles.", okayErrorAction);
 		}
 		else{
 			//check board
 			int error = boardChecker.CheckBoard(boardLetters, 16, 25);
 			Debug.Log("BoardChecker returned: " + error);
+			//if board is all good
+			if(error == 0){
+				modalPanel.Choice("Good job! Deal each player another tile?", dealOneTileAction);
+			}
+			//disconnected tile
+			else if(error == 1){
+				modalPanel.Choice("It looks like you have a disconnected word!", okayErrorAction);
+			}
+			//wrong word
+			else if(error == 2){
+				modalPanel.Choice("Oops...you misspelled a word.", okayErrorAction);
+			}
 		}
 		Print2DArray(boardLetters);
+	}
+	
+	/*called when modal panel "okay" clicked for user errors on board*/
+	void ModalPanelErrorOkayAction(){
+		Debug.Log("Okay");
 	}
 	
 	/*prints out 2D board to console*/
@@ -245,6 +276,22 @@ public class PlayerHand : MonoBehaviour {
 	
 	public void TakeOneTile(){
 		Debug.Log("taking one tile");
+		if(hand.Length < 36){
+			GameObject[] nhand = new GameObject[hand.Length + 1];
+			for(int i = 0; i < hand.Length; i++){
+				nhand[i] = hand[i];
+			}
+			nhand[nhand.Length - 1] = tileDistributor.DealTile();
+			nhand[nhand.Length - 1].transform.position = new Vector3(xyz[nhand.Length - 1,0], xyz[nhand.Length - 1,1], xyz[nhand.Length - 1,2]);
+			Tile tile = nhand[nhand.Length - 1].GetComponent(typeof(Tile)) as Tile;
+			tile.SetStartPosition(new Vector2(xyz[nhand.Length - 1,0], xyz[nhand.Length - 1,1]));
+			
+			//replace previous hand with new hand
+			hand = nhand;
+		}
+		else{
+			Debug.LogError("Hand is too large. Cannot draw tile");
+		}
 	}
 	
 	public void Dump(){
